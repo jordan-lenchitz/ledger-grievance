@@ -1,29 +1,22 @@
-# Grievance Ledger POC
-
-A tiny MariaDB + FastAPI proof of concept for a neutral, user-reported incident journal.
-
-Important framing: records are reports, not verified claims. This is for personal tracking, review, and structured recall, not harassment, doxxing, retaliation, or automated collection.
+# gievance ledger
+a tiny MariaDB + FastAPI proof of concept for a neutral, user-reported incident journal. records are reports, not verified claims!
 
 ## Run
-
 ```bash
 docker compose up --build
 ```
 
 API docs:
-
 ```text
 http://localhost:8000/docs
 ```
 
 Health check:
-
 ```bash
 curl http://localhost:8000/health
 ```
 
 ## Create an incident
-
 ```bash
 curl -X POST http://localhost:8000/incidents \
   -H 'Content-Type: application/json' \
@@ -40,19 +33,16 @@ curl -X POST http://localhost:8000/incidents \
 ```
 
 ## List incidents
-
 ```bash
 curl 'http://localhost:8000/incidents?reporter_id=jordan&limit=25'
 ```
 
 Search:
-
 ```bash
 curl 'http://localhost:8000/incidents?q=communication'
 ```
 
 ## Update incident status or notes
-
 ```bash
 curl -X PATCH http://localhost:8000/incidents/1 \
   -H 'Content-Type: application/json' \
@@ -60,13 +50,11 @@ curl -X PATCH http://localhost:8000/incidents/1 \
 ```
 
 ## Archive an incident
-
 ```bash
 curl -X DELETE http://localhost:8000/incidents/1
 ```
 
 ## Schema
-
 Core table: `incidents`
 
 - `id`
@@ -83,8 +71,8 @@ Core table: `incidents`
 
 ## POC boundaries
 
-- No scraping
-- No automatic collection
-- No private-data ingestion
-- No claims of verification
-- No publishing or sharing workflow
+- no scraping
+- no automatic collection
+- no private-data ingestion
+- no claims of verification
+- no publishing or sharing workflow
