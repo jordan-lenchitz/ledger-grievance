@@ -1,5 +1,7 @@
 # gievance ledger
-a tiny MariaDB + FastAPI proof of concept for a neutral, user-reported incident journal. records are reports, not verified claims!
+a tiny MariaDB + FastAPI proof of concept for a neutral, user-reported incident journal. 
+
+records are reports, not verified claims!
 
 ## Run
 ```bash
