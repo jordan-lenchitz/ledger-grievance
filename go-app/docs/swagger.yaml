@@ -1,0 +1,195 @@
+basePath: /
+definitions:
+  gin.H:
+    additionalProperties: {}
+    type: object
+  github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.Incident:
+    description: Incident model
+    properties:
+      category:
+        example: technical
+        type: string
+      description:
+        example: the system crashed
+        type: string
+      evidence_uri:
+        example: https://example.com/log
+        type: string
+      id:
+        example: 1
+        type: integer
+      notes:
+        example: investigating
+        type: string
+      occurred_at:
+        type: string
+      recorded_at:
+        type: string
+      reporter_id:
+        example: jordan
+        type: string
+      requires_accommodation:
+        example: false
+        type: boolean
+      severity:
+        example: 3
+        type: integer
+      status:
+        allOf:
+        - $ref: '#/definitions/github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.Status'
+        example: reported
+      subject:
+        example: system failure
+        type: string
+    type: object
+  github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.IncidentCreate:
+    description: Incident creation request
+    properties:
+      assumed_good_intentions:
+        example: true
+        type: boolean
+      category:
+        example: technical
+        maxLength: 128
+        minLength: 1
+        type: string
+      description:
+        example: the system crashed
+        minLength: 1
+        type: string
+      evidence_uri:
+        example: https://example.com/log
+        type: string
+      notes:
+        example: investigating
+        type: string
+      occurred_at:
+        type: string
+      reporter_id:
+        example: jordan
+        maxLength: 128
+        minLength: 1
+        type: string
+      requires_accommodation:
+        example: false
+        type: boolean
+      severity:
+        example: 3
+        maximum: 5
+        minimum: 1
+        type: integer
+      subject:
+        example: system failure
+        maxLength: 255
+        minLength: 1
+        type: string
+    required:
+    - assumed_good_intentions
+    - description
+    - reporter_id
+    - subject
+    type: object
+  github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.ListResult:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.Incident'
+        type: array
+      total:
+        type: integer
+    type: object
+  github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.Status:
+    enum:
+    - reported
+    - reviewing
+    - resolved
+    - dismissed
+    - archived
+    type: string
+    x-enum-varnames:
+    - StatusReported
+    - StatusReviewing
+    - StatusResolved
+    - StatusDismissed
+    - StatusArchived
+host: localhost:8000
+info:
+  contact: {}
+  description: API for the incident grievance ledger
+  title: Ledger-Grievance API
+  version: "1.0"
+paths:
+  /incidents:
+    get:
+      parameters:
+      - description: Reporter ID
+        in: query
+        name: reporter_id
+        type: string
+      - description: Status
+        in: query
+        name: status
+        type: string
+      - description: Category
+        in: query
+        name: category
+        type: string
+      - description: Search query
+        in: query
+        name: q
+        type: string
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.ListResult'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: List incidents
+      tags:
+      - incidents
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Incident request
+        in: body
+        name: incident
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.IncidentCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.Incident'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gin.H'
+        "418":
+          description: I'm a teapot
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Create a new incident
+      tags:
+      - incidents
+swagger: "2.0"
