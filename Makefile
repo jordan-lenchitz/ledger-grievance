@@ -11,3 +11,4 @@ build-cli:
 
 test:
 	cd go-app && go test -v ./...
+ 
