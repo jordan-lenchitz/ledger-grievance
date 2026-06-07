@@ -42,3 +42,4 @@ a go microservice for incident reporting
    ```bash
    go run cmd/server/main.go
    ```
+ 
