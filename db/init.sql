@@ -17,3 +17,4 @@ CREATE TABLE IF NOT EXISTS incidents (
   INDEX idx_status (status),
   INDEX idx_category (category)
 );
+ 
