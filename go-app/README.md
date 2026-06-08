@@ -18,27 +18,6 @@ a go microservice for incident reporting
 13. deep health check endpoint for comprehensive system readiness and dependency verification
 
 ## howto
-...
-### seeking a deep health check
-```bash
-curl http://localhost:8000/health/deep
-```
-#### response
-```json
-{
-  "overall": true,
-  "status": {
-    "database": "healthy",
-    "pkgsite": "healthy"
-  }
-}
-```
-
-### viewing metrics
-```bash
-curl http://localhost:8000/metrics
-```
-
 ### prerequisites
 - go 1.26+
 - mysql instance
@@ -71,6 +50,26 @@ curl http://localhost:8000/metrics
    ```
 
 ## examples
+
+### seeking a deep health check
+```bash
+curl http://localhost:8000/health/deep
+```
+#### response
+```json
+{
+  "overall": true,
+  "status": {
+    "database": "healthy",
+    "pkgsite": "healthy"
+  }
+}
+```
+
+### viewing metrics
+```bash
+curl http://localhost:8000/metrics
+```
 
 ### creating an incident
 ```bash
