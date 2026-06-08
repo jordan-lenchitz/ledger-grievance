@@ -46,4 +46,34 @@ a go microservice for incident reporting
    ```bash
    go run cmd/server/main.go
    ```
+
+## examples
+
+### creating an incident
+```bash
+curl -x post http://localhost:8000/incidents \
+  -h "content-type: application/json" \
+  -d '{
+    "reporter_id": "jordan",
+    "subject": "slow build times",
+    "description": "i am feeling tired of these compile times",
+    "assumed_good_intentions": true,
+    "promised_to_be_kind_to_yourself": true
+  }'
+```
+
+### getting gopher wisdom
+```bash
+curl http://localhost:8000/wisdom
+```
+
+### requesting a bouquet
+```bash
+curl http://localhost:8000/bouquet
+```
+
+### vouching for a gopher
+```bash
+curl -x post http://localhost:8000/incidents/1/vouch
+```
  
