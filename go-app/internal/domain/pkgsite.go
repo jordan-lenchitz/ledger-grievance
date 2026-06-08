@@ -68,3 +68,13 @@ type SearchResult struct {
 	Version     string `json:"version"`
 	Synopsis    string `json:"synopsis"`
 }
+
+type WholesomeBouquet struct {
+	Items   []BouquetItem `json:"items"`
+	Message string        `json:"message"`
+}
+
+type BouquetItem struct {
+	PackagePath string `json:"package_path"`
+	Synopsis    string `json:"synopsis"`
+}

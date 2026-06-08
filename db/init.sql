@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS incidents (
   description TEXT NOT NULL,
   evidence_uri TEXT NULL,
   requires_accommodation BOOLEAN NOT NULL DEFAULT FALSE,
-  status ENUM('reported','reviewing','resolved','dismissed','archived') NOT NULL DEFAULT 'reported',
+  status ENUM('reported','reviewing','resolved','dismissed','archived','celebrated') NOT NULL DEFAULT 'reported',
   notes TEXT NULL,
   CONSTRAINT chk_severity CHECK (severity BETWEEN 1 AND 5),
   INDEX idx_reporter_recorded (reporter_id, recorded_at),

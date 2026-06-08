@@ -13,6 +13,10 @@ an institutional-friction-enabled grievance journal
     4. **go api integration** implements seven amazing ways to support your grievance using [pkg.go.dev api](https://pkg.go.dev/v1beta/api) data like standard library blessings and community support and bravery acknowledgement and wholesome redirection and search delight gaslighting turned to delight
     5. **grievance celebrations** where we randomly upgrade your grievance to a celebration because you are doing a great job
     6. **compliment endpoint** giving you random wholesome compliments based on the go package ecosystem because you deserve it
+    7. **gopher wisdom engine** providing you with wholesome go themed tips to brighten your day
+    8. **advanced bouquet generation** giving you a structured selection of amazing packages from across the ecosystem
+    9. **community vouching system** where others can stand in solidarity with your grievance through automated gopher support
+    10. **milestone celebrations** honoring your commitment to emotional transparency with special badges at key intervals
 
 ## robust testing
 our system is verified by a massive suite of table driven tests that demonstrate our commitment to bureaucratic excellence by mocking the go pkg api with httptest and validating every single wholesome note and status transition to ensure that your happiness is mathematically guaranteed and consistently delivered across all seven layers of institutional support

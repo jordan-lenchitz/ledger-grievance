@@ -79,7 +79,56 @@ func main() {
 		},
 	}
 
-	rootCmd.AddCommand(listCmd, createCmd, complimentCmd)
+	wisdomCmd := &cobra.Command{
+		Use:   "wisdom",
+		Short: "Get Gopher Wisdom",
+		Run: func(cmd *cobra.Command, args []string) {
+			resp, err := http.Get(apiURL + "/wisdom")
+			if err != nil {
+				fmt.Printf("Error: %v\n", err)
+				return
+			}
+			defer resp.Body.Close()
+			body, _ := io.ReadAll(resp.Body)
+			fmt.Println(string(body))
+		},
+	}
+
+	bouquetCmd := &cobra.Command{
+		Use:   "bouquet",
+		Short: "Get a wholesome package bouquet",
+		Run: func(cmd *cobra.Command, args []string) {
+			resp, err := http.Get(apiURL + "/bouquet")
+			if err != nil {
+				fmt.Printf("Error: %v\n", err)
+				return
+			}
+			defer resp.Body.Close()
+			body, _ := io.ReadAll(resp.Body)
+			fmt.Println(string(body))
+		},
+	}
+
+	vouchCmd := &cobra.Command{
+		Use:   "vouch",
+		Short: "Vouch for an incident",
+		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) < 1 {
+				fmt.Println("Usage: vouch <incident_id>")
+				return
+			}
+			resp, err := http.Post(apiURL+"/incidents/"+args[0]+"/vouch", "application/json", nil)
+			if err != nil {
+				fmt.Printf("Error: %v\n", err)
+				return
+			}
+			defer resp.Body.Close()
+			body, _ := io.ReadAll(resp.Body)
+			fmt.Println(string(body))
+		},
+	}
+
+	rootCmd.AddCommand(listCmd, createCmd, complimentCmd, wisdomCmd, bouquetCmd, vouchCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)

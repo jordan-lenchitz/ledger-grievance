@@ -24,6 +24,9 @@ type IncidentService interface {
 	PatchIncident(ctx context.Context, id uint64, patch domain.IncidentPatch) (*domain.Incident, error)
 	ArchiveIncident(ctx context.Context, id uint64) error
 	GetWholesomeCompliment(ctx context.Context) (string, error)
+	GetGopherWisdom(ctx context.Context) (string, error)
+	GetWholesomeBouquet(ctx context.Context) (*domain.WholesomeBouquet, error)
+	VouchIncident(ctx context.Context, id uint64) error
 }
 
 type incidentService struct {
@@ -68,6 +71,27 @@ func (s *incidentService) CreateIncident(ctx context.Context, req domain.Inciden
 	if triggered {
 		validationNote := "\n\nSYSTEM AUTOMATED NOTE: It is completely valid to feel the way you do! Your feelings are important. Please take a 15-minute break if you can. Your mental health is more important than any code."
 		finalNotes += validationNote
+	}
+
+	// Gopher Wisdom Integration
+	wisdom, _ := s.GetGopherWisdom(ctx)
+	finalNotes += fmt.Sprintf("\n\nSYSTEM AUTOMATED NOTE: Gopher Wisdom for you: %s", wisdom)
+
+	// Milestone Celebrations
+	if list, err := s.repo.List(ctx, domain.ListParams{ReporterID: req.ReporterID}); err == nil {
+		count := list.Total + 1
+		milestoneNote := ""
+		switch count {
+		case 1:
+			milestoneNote = "This is your very first grievance! Welcome to the journey of self-expression and healing."
+		case 5:
+			milestoneNote = "Your 5th grievance! You are becoming a master of acknowledging your feelings."
+		case 10:
+			milestoneNote = "Double digits! 10 grievances. Your commitment to transparency is truly inspiring."
+		}
+		if milestoneNote != "" {
+			finalNotes += fmt.Sprintf("\n\nSYSTEM AUTOMATED NOTE: MILESTONE REACHED! %s", milestoneNote)
+		}
 	}
 
 	if req.Category == "" {
@@ -265,4 +289,62 @@ func (s *incidentService) GetWholesomeCompliment(ctx context.Context) (string, e
 
 	bouquet += "We're so incredibly glad you're here in the Go community! Keep being you!"
 	return bouquet, nil
+}
+
+func (s *incidentService) GetWholesomeBouquet(ctx context.Context) (*domain.WholesomeBouquet, error) {
+	keywords := []string{"awesome", "magic", "fun", "hug", "kindness", "gentle", "sparkle", "rainbow", "unicorn", "love", "peace", "harmony", "zen", "stability"}
+
+	if s.pkgsite == nil {
+		return &domain.WholesomeBouquet{
+			Message: "You are amazing and valid!",
+		}, nil
+	}
+
+	rand.Shuffle(len(keywords), func(i, j int) { keywords[i], keywords[j] = keywords[j], keywords[i] })
+	bouquet := &domain.WholesomeBouquet{
+		Message: "You are a wonderful developer! Here is a bouquet of wholesome packages just for you:",
+		Items:   []domain.BouquetItem{},
+	}
+
+	count := 0
+	for _, kw := range keywords {
+		if count >= 3 {
+			break
+		}
+		search, err := s.pkgsite.Search(ctx, kw)
+		if err == nil && len(search.Items) > 0 {
+			bestMatch := search.Items[rand.Intn(len(search.Items))]
+			if len(search.Items) > 5 {
+				bestMatch = search.Items[rand.Intn(5)]
+			}
+			bouquet.Items = append(bouquet.Items, domain.BouquetItem{
+				PackagePath: bestMatch.PackagePath,
+				Synopsis:    bestMatch.Synopsis,
+			})
+			count++
+		}
+	}
+
+	if count == 0 {
+		bouquet.Message = "You are as special as a perfectly compiled Go binary!"
+	}
+
+	return bouquet, nil
+}
+
+func (s *incidentService) VouchIncident(ctx context.Context, id uint64) error {
+	inc, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	currentNotes := ""
+	if inc.Notes != nil {
+		currentNotes = *inc.Notes
+	}
+
+	vouchNote := "\n\nSYSTEM AUTOMATED NOTE: A fellow Gopher has vouched for this grievance! We believe you and we stand with you in this challenge. You are not alone."
+	finalNotes := currentNotes + vouchNote
+
+	return s.repo.Update(ctx, id, domain.IncidentPatch{Notes: &finalNotes})
 }

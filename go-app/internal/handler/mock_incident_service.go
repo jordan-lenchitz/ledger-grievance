@@ -70,6 +70,21 @@ func (mr *MockIncidentServiceMockRecorder) CreateIncident(ctx, req any) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateIncident", reflect.TypeOf((*MockIncidentService)(nil).CreateIncident), ctx, req)
 }
 
+// GetGopherWisdom mocks base method.
+func (m *MockIncidentService) GetGopherWisdom(ctx context.Context) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetGopherWisdom", ctx)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetGopherWisdom indicates an expected call of GetGopherWisdom.
+func (mr *MockIncidentServiceMockRecorder) GetGopherWisdom(ctx any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGopherWisdom", reflect.TypeOf((*MockIncidentService)(nil).GetGopherWisdom), ctx)
+}
+
 // GetIncident mocks base method.
 func (m *MockIncidentService) GetIncident(ctx context.Context, id uint64) (*domain.Incident, error) {
 	m.ctrl.T.Helper()
@@ -83,6 +98,36 @@ func (m *MockIncidentService) GetIncident(ctx context.Context, id uint64) (*doma
 func (mr *MockIncidentServiceMockRecorder) GetIncident(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncident", reflect.TypeOf((*MockIncidentService)(nil).GetIncident), ctx, id)
+}
+
+// GetWholesomeBouquet mocks base method.
+func (m *MockIncidentService) GetWholesomeBouquet(ctx context.Context) (*domain.WholesomeBouquet, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetWholesomeBouquet", ctx)
+	ret0, _ := ret[0].(*domain.WholesomeBouquet)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetWholesomeBouquet indicates an expected call of GetWholesomeBouquet.
+func (mr *MockIncidentServiceMockRecorder) GetWholesomeBouquet(ctx any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWholesomeBouquet", reflect.TypeOf((*MockIncidentService)(nil).GetWholesomeBouquet), ctx)
+}
+
+// GetWholesomeCompliment mocks base method.
+func (m *MockIncidentService) GetWholesomeCompliment(ctx context.Context) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetWholesomeCompliment", ctx)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetWholesomeCompliment indicates an expected call of GetWholesomeCompliment.
+func (mr *MockIncidentServiceMockRecorder) GetWholesomeCompliment(ctx any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWholesomeCompliment", reflect.TypeOf((*MockIncidentService)(nil).GetWholesomeCompliment), ctx)
 }
 
 // ListIncidents mocks base method.
@@ -115,17 +160,16 @@ func (mr *MockIncidentServiceMockRecorder) PatchIncident(ctx, id, patch any) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PatchIncident", reflect.TypeOf((*MockIncidentService)(nil).PatchIncident), ctx, id, patch)
 }
 
-// GetWholesomeCompliment mocks base method.
-func (m *MockIncidentService) GetWholesomeCompliment(ctx context.Context) (string, error) {
+// VouchIncident mocks base method.
+func (m *MockIncidentService) VouchIncident(ctx context.Context, id uint64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetWholesomeCompliment", ctx)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret := m.ctrl.Call(m, "VouchIncident", ctx, id)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
-// GetWholesomeCompliment indicates an expected call of GetWholesomeCompliment.
-func (mr *MockIncidentServiceMockRecorder) GetWholesomeCompliment(ctx any) *gomock.Call {
+// VouchIncident indicates an expected call of VouchIncident.
+func (mr *MockIncidentServiceMockRecorder) VouchIncident(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWholesomeCompliment", reflect.TypeOf((*MockIncidentService)(nil).GetWholesomeCompliment), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VouchIncident", reflect.TypeOf((*MockIncidentService)(nil).VouchIncident), ctx, id)
 }

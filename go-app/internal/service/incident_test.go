@@ -37,6 +37,10 @@ func TestCreateIncident(t *testing.T) {
 	mockPkgsite.EXPECT().Search(gomock.Any(), req.Subject).Return(&domain.PaginatedResponse[domain.SearchResult]{}, nil)
 
 	mockRepo.EXPECT().
+		List(gomock.Any(), domain.ListParams{ReporterID: req.ReporterID}).
+		Return(domain.ListResult{Total: 0}, nil)
+
+	mockRepo.EXPECT().
 		Create(gomock.Any(), gomock.Any()).
 		Return(uint64(1), nil)
 
@@ -71,6 +75,10 @@ func TestCreateIncident_WholesomeValidation(t *testing.T) {
 
 	mockPkgsite.EXPECT().Search(gomock.Any(), "kindness").Return(&domain.PaginatedResponse[domain.SearchResult]{}, nil)
 	mockPkgsite.EXPECT().Search(gomock.Any(), req.Subject).Return(&domain.PaginatedResponse[domain.SearchResult]{}, nil)
+
+	mockRepo.EXPECT().
+		List(gomock.Any(), domain.ListParams{ReporterID: req.ReporterID}).
+		Return(domain.ListResult{Total: 0}, nil)
 
 	mockRepo.EXPECT().
 		Create(gomock.Any(), gomock.Any()).
@@ -333,10 +341,126 @@ func TestCreateIncident_GoSupport_Table(t *testing.T) {
 				req.EvidenceURI = nil
 			}
 
+			mockRepo.EXPECT().
+				List(gomock.Any(), domain.ListParams{ReporterID: req.ReporterID}).
+				Return(domain.ListResult{Total: 0}, nil)
+
 			mockRepo.EXPECT().Create(gomock.Any(), gomock.Any()).Do(func(ctx context.Context, inc *domain.Incident) {
 				for _, note := range tt.expectedNotes {
 					assert.Contains(t, *inc.Notes, note)
 				}
+			}).Return(uint64(1), nil)
+
+			mockRepo.EXPECT().GetByID(gomock.Any(), uint64(1)).Return(&domain.Incident{}, nil)
+
+			_, err := svc.CreateIncident(context.Background(), req)
+			assert.NoError(t, err)
+		})
+	}
+}
+
+func TestGetGopherWisdom(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := NewMockIncidentRepository(ctrl)
+	mockPkgsite := NewMockPkgsiteService(ctrl)
+	svc := NewIncidentService(mockRepo, mockPkgsite)
+
+	wisdom, err := svc.GetGopherWisdom(context.Background())
+	assert.NoError(t, err)
+	assert.NotEmpty(t, wisdom)
+}
+
+func TestGetWholesomeBouquet(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := NewMockIncidentRepository(ctrl)
+	mockPkgsite := NewMockPkgsiteService(ctrl)
+	svc := NewIncidentService(mockRepo, mockPkgsite)
+
+	mockPkgsite.EXPECT().Search(gomock.Any(), gomock.Any()).Return(&domain.PaginatedResponse[domain.SearchResult]{
+		Items: []domain.SearchResult{{PackagePath: "github.com/awesome/pkg", Synopsis: "Something great"}},
+	}, nil).AnyTimes()
+
+	bouquet, err := svc.GetWholesomeBouquet(context.Background())
+
+	assert.NoError(t, err)
+	assert.NotNil(t, bouquet)
+	assert.Equal(t, "You are a wonderful developer! Here is a bouquet of wholesome packages just for you:", bouquet.Message)
+	assert.GreaterOrEqual(t, len(bouquet.Items), 1)
+}
+
+func TestVouchIncident(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := NewMockIncidentRepository(ctrl)
+	mockPkgsite := NewMockPkgsiteService(ctrl)
+	svc := NewIncidentService(mockRepo, mockPkgsite)
+
+	ctx := context.Background()
+	id := uint64(1)
+	notes := "original notes"
+	mockRepo.EXPECT().GetByID(ctx, id).Return(&domain.Incident{ID: id, Notes: &notes}, nil)
+	mockRepo.EXPECT().Update(ctx, id, gomock.Any()).Do(func(ctx context.Context, id uint64, patch domain.IncidentPatch) {
+		assert.Contains(t, *patch.Notes, "fellow Gopher has vouched")
+	}).Return(nil)
+
+	err := svc.VouchIncident(ctx, id)
+	assert.NoError(t, err)
+}
+
+func TestCreateIncident_Milestones(t *testing.T) {
+	tests := []struct {
+		name          string
+		totalExisting int
+		expectedNote  string
+	}{
+		{
+			name:          "First Incident",
+			totalExisting: 0,
+			expectedNote:  "This is your very first grievance",
+		},
+		{
+			name:          "Fifth Incident",
+			totalExisting: 4,
+			expectedNote:  "Your 5th grievance",
+		},
+		{
+			name:          "Tenth Incident",
+			totalExisting: 9,
+			expectedNote:  "Double digits! 10 grievances",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			mockRepo := NewMockIncidentRepository(ctrl)
+			mockPkgsite := NewMockPkgsiteService(ctrl)
+			svc := NewIncidentService(mockRepo, mockPkgsite)
+
+			req := domain.IncidentCreate{
+				ReporterID:                 "jordan",
+				Subject:                    "test",
+				Description:                "test",
+				AssumedGoodIntentions:      true,
+				PromisedToBeKindToYourself: true,
+			}
+
+			mockPkgsite.EXPECT().Search(gomock.Any(), "kindness").Return(&domain.PaginatedResponse[domain.SearchResult]{}, nil)
+			mockPkgsite.EXPECT().Search(gomock.Any(), req.Subject).Return(&domain.PaginatedResponse[domain.SearchResult]{}, nil)
+
+			mockRepo.EXPECT().
+				List(gomock.Any(), domain.ListParams{ReporterID: req.ReporterID}).
+				Return(domain.ListResult{Total: tt.totalExisting}, nil)
+
+			mockRepo.EXPECT().Create(gomock.Any(), gomock.Any()).Do(func(ctx context.Context, inc *domain.Incident) {
+				assert.Contains(t, *inc.Notes, tt.expectedNote)
 			}).Return(uint64(1), nil)
 
 			mockRepo.EXPECT().GetByID(gomock.Any(), uint64(1)).Return(&domain.Incident{}, nil)

@@ -23,6 +23,9 @@ func (h *IncidentHandler) RegisterRoutes(r *gin.Engine) {
 	r.PATCH("/incidents/:id", h.PatchIncident)
 	r.DELETE("/incidents/:id", h.ArchiveIncident)
 	r.GET("/compliments", h.GetCompliment)
+	r.GET("/wisdom", h.GetWisdom)
+	r.GET("/bouquet", h.GetBouquet)
+	r.POST("/incidents/:id/vouch", h.VouchIncident)
 }
 
 // CreateIncident creates a new incident
@@ -174,4 +177,51 @@ func (h *IncidentHandler) ArchiveIncident(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"id": id, "status": domain.StatusArchived})
+}
+
+func (h *IncidentHandler) GetCompliment(c *gin.Context) {
+	compliment, err := h.svc.GetWholesomeCompliment(c.Request.Context())
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"compliment": compliment})
+}
+
+func (h *IncidentHandler) GetWisdom(c *gin.Context) {
+	wisdom, err := h.svc.GetGopherWisdom(c.Request.Context())
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"wisdom": wisdom})
+}
+
+func (h *IncidentHandler) GetBouquet(c *gin.Context) {
+	bouquet, err := h.svc.GetWholesomeBouquet(c.Request.Context())
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	c.JSON(http.StatusOK, bouquet)
+}
+
+func (h *IncidentHandler) VouchIncident(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+		return
+	}
+
+	err = h.svc.VouchIncident(c.Request.Context(), id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Incident not found", "path": c.Request.URL.Path})
+			return
+		}
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"id": id, "status": "vouched"})
 }
