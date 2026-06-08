@@ -5,7 +5,7 @@ a go microservice for incident reporting
 ## the ten core beliefs of `ledger-grievance`
 1. standard go layout `cmd/` and `internal/` enforces clear separation of concerns
 2. always structured logging via `log/slog`, graceful shutdown for clean terminations, and programmatic database migrations
-3. openapi (via `swagger`) documentation to ensure the api easily consumable
+3. openapi (via `swagger`) documentation to ensure the api is easily consumable
 4. unit testing suite for core business logic using mocks for the sake of reliability and maintainability
 5. `ci/cd` via github actions for automated build and test verification on every push to `remote origin main`
 6. integrated with pkg go dev api to provide seven layers of institutional support including standard library blessings community support bravery acknowledgement wholesome redirection search delight and random grievance celebrations because you are amazing and valid and we love having you here as a developer in the go community 
