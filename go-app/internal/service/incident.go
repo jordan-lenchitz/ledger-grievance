@@ -7,7 +7,31 @@ import (
 	"strings"
 	"time"
 	"github.com/jordan-lenchitz/ledger-grievance/go-app/internal/domain"
+	"github.com/jordan-lenchitz/ledger-grievance/go-app/internal/telemetry"
+	"go.opentelemetry.io/otel/metric"
 )
+
+var (
+	wholesomeNotesCounter metric.Int64Counter
+	gopherWisdomCounter   metric.Int64Counter
+)
+
+func init() {
+	var err error
+	wholesomeNotesCounter, err = telemetry.Meter.Int64Counter("wholesome_notes_total",
+		metric.WithDescription("Total number of wholesome notes generated"),
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	gopherWisdomCounter, err = telemetry.Meter.Int64Counter("gopher_wisdom_total",
+		metric.WithDescription("Total number of gopher wisdom tips shared"),
+	)
+	if err != nil {
+		panic(err)
+	}
+}
 
 var (
 	ErrAssumeGoodIntentions = errors.New("you must assume good intentions to submit a grievance; we believe in your capacity for empathy and kindness")
@@ -27,6 +51,7 @@ type IncidentService interface {
 	GetGopherWisdom(ctx context.Context) (string, error)
 	GetWholesomeBouquet(ctx context.Context) (*domain.WholesomeBouquet, error)
 	VouchIncident(ctx context.Context, id uint64) error
+	CheckHealth(ctx context.Context) map[string]string
 }
 
 type incidentService struct {
@@ -71,11 +96,13 @@ func (s *incidentService) CreateIncident(ctx context.Context, req domain.Inciden
 	if triggered {
 		validationNote := "\n\nSYSTEM AUTOMATED NOTE: It is completely valid to feel the way you do! Your feelings are important. Please take a 15-minute break if you can. Your mental health is more important than any code."
 		finalNotes += validationNote
+		wholesomeNotesCounter.Add(ctx, 1)
 	}
 
 	// Gopher Wisdom Integration
 	wisdom, _ := s.GetGopherWisdom(ctx)
 	finalNotes += fmt.Sprintf("\n\nSYSTEM AUTOMATED NOTE: Gopher Wisdom for you: %s", wisdom)
+	gopherWisdomCounter.Add(ctx, 1)
 
 	// Milestone Celebrations
 	if list, err := s.repo.List(ctx, domain.ListParams{ReporterID: req.ReporterID}); err == nil {
@@ -347,4 +374,26 @@ func (s *incidentService) VouchIncident(ctx context.Context, id uint64) error {
 	finalNotes := currentNotes + vouchNote
 
 	return s.repo.Update(ctx, id, domain.IncidentPatch{Notes: &finalNotes})
+}
+
+func (s *incidentService) CheckHealth(ctx context.Context) map[string]string {
+	status := make(map[string]string)
+	
+	// Check DB (implicitly via repo List)
+	if _, err := s.repo.List(ctx, domain.ListParams{Limit: 1}); err != nil {
+		status["database"] = "unhealthy: " + err.Error()
+	} else {
+		status["database"] = "healthy"
+	}
+
+	// Check Pkgsite
+	if s.pkgsite != nil {
+		if err := s.pkgsite.CheckHealth(ctx); err != nil {
+			status["pkgsite"] = "unhealthy: " + err.Error()
+		} else {
+			status["pkgsite"] = "healthy"
+		}
+	}
+
+	return status
 }

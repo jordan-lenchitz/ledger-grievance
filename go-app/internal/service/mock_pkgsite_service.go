@@ -41,6 +41,20 @@ func (m *MockPkgsiteService) EXPECT() *MockPkgsiteServiceMockRecorder {
 	return m.recorder
 }
 
+// CheckHealth mocks base method.
+func (m *MockPkgsiteService) CheckHealth(ctx context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckHealth", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CheckHealth indicates an expected call of CheckHealth.
+func (mr *MockPkgsiteServiceMockRecorder) CheckHealth(ctx any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckHealth", reflect.TypeOf((*MockPkgsiteService)(nil).CheckHealth), ctx)
+}
+
 // GetImportedBy mocks base method.
 func (m *MockPkgsiteService) GetImportedBy(ctx context.Context, path string) (*domain.PackageImportedBy, error) {
 	m.ctrl.T.Helper()

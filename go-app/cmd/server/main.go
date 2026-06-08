@@ -18,6 +18,10 @@ import (
 	"github.com/jordan-lenchitz/ledger-grievance/go-app/internal/middleware"
 	"github.com/jordan-lenchitz/ledger-grievance/go-app/internal/repository"
 	"github.com/jordan-lenchitz/ledger-grievance/go-app/internal/service"
+	"github.com/jordan-lenchitz/ledger-grievance/go-app/internal/telemetry"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
+	"golang.org/x/time/rate"
 	"github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
 	_ "github.com/jordan-lenchitz/ledger-grievance/go-app/docs"
@@ -30,6 +34,7 @@ import (
 // @BasePath /
 func main() {
 	cfg := config.Load()
+	ctx := context.Background()
 
 	// Setup Logger
 	var handlerOpts slog.HandlerOptions
@@ -40,6 +45,18 @@ func main() {
 	}
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &handlerOpts))
 	slog.SetDefault(logger)
+
+	// Initialize OTEL
+	shutdown, err := telemetry.SetupOTEL(ctx)
+	if err != nil {
+		logger.Error("failed to setup otel", "error", err)
+		os.Exit(1)
+	}
+	defer func() {
+		if err := shutdown(ctx); err != nil {
+			logger.Error("failed to shutdown otel", "error", err)
+		}
+	}()
 
 	// Database Connection
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", cfg.DBUser, cfg.DBPassword, cfg.DBHost, cfg.DBPort, cfg.DBName)
@@ -62,8 +79,10 @@ func main() {
 
 	// Middleware
 	r.Use(gin.Recovery())
+	r.Use(otelgin.Middleware("ledger-grievance"))
 	r.Use(middleware.Logger(logger))
 	r.Use(middleware.ErrorHandler())
+	r.Use(middleware.CompassionateRateLimiter(rate.Limit(5), 10))
 
 	// Routes
 	r.GET("/health", func(c *gin.Context) {
@@ -74,6 +93,7 @@ func main() {
 		}
 		c.JSON(http.StatusOK, gin.H{"status": "healthy"})
 	})
+	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	h.RegisterRoutes(r)
 

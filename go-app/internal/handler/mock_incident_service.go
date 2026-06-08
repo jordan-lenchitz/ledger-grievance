@@ -55,6 +55,20 @@ func (mr *MockIncidentServiceMockRecorder) ArchiveIncident(ctx, id any) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ArchiveIncident", reflect.TypeOf((*MockIncidentService)(nil).ArchiveIncident), ctx, id)
 }
 
+// CheckHealth mocks base method.
+func (m *MockIncidentService) CheckHealth(ctx context.Context) map[string]string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckHealth", ctx)
+	ret0, _ := ret[0].(map[string]string)
+	return ret0
+}
+
+// CheckHealth indicates an expected call of CheckHealth.
+func (mr *MockIncidentServiceMockRecorder) CheckHealth(ctx any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckHealth", reflect.TypeOf((*MockIncidentService)(nil).CheckHealth), ctx)
+}
+
 // CreateIncident mocks base method.
 func (m *MockIncidentService) CreateIncident(ctx context.Context, req domain.IncidentCreate) (*domain.Incident, error) {
 	m.ctrl.T.Helper()

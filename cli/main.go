@@ -128,7 +128,22 @@ func main() {
 		},
 	}
 
-	rootCmd.AddCommand(listCmd, createCmd, complimentCmd, wisdomCmd, bouquetCmd, vouchCmd)
+	healthCmd := &cobra.Command{
+		Use:   "health",
+		Short: "Check system deep health",
+		Run: func(cmd *cobra.Command, args []string) {
+			resp, err := http.Get(apiURL + "/health/deep")
+			if err != nil {
+				fmt.Printf("Error: %v\n", err)
+				return
+			}
+			defer resp.Body.Close()
+			body, _ := io.ReadAll(resp.Body)
+			fmt.Println(string(body))
+		},
+	}
+
+	rootCmd.AddCommand(listCmd, createCmd, complimentCmd, wisdomCmd, bouquetCmd, vouchCmd, healthCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)

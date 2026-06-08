@@ -26,6 +26,7 @@ func (h *IncidentHandler) RegisterRoutes(r *gin.Engine) {
 	r.GET("/wisdom", h.GetWisdom)
 	r.GET("/bouquet", h.GetBouquet)
 	r.POST("/incidents/:id/vouch", h.VouchIncident)
+	r.GET("/health/deep", h.GetDeepHealth)
 }
 
 // CreateIncident creates a new incident
@@ -224,4 +225,26 @@ func (h *IncidentHandler) VouchIncident(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"id": id, "status": "vouched"})
+}
+
+func (h *IncidentHandler) GetDeepHealth(c *gin.Context) {
+	status := h.svc.CheckHealth(c.Request.Context())
+	
+	isHealthy := true
+	for _, v := range status {
+		if v != "healthy" {
+			isHealthy = false
+			break
+		}
+	}
+
+	code := http.StatusOK
+	if !isHealthy {
+		code = http.StatusServiceUnavailable
+	}
+
+	c.JSON(code, gin.H{
+		"status":  status,
+		"overall": isHealthy,
+	})
 }

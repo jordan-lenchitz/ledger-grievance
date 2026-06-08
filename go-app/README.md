@@ -2,7 +2,7 @@
 
 a go microservice for incident reporting 
 
-## the ten core beliefs of `ledger-grievance`
+## the thirteen core beliefs of `ledger-grievance`
 1. standard go layout `cmd/` and `internal/` enforces clear separation of concerns
 2. always structured logging via `log/slog`, graceful shutdown for clean terminations, and programmatic database migrations
 3. openapi (via `swagger`) documentation to ensure the api is easily consumable
@@ -13,8 +13,31 @@ a go microservice for incident reporting
 8. advanced bouquet generation returning structured package data to celebrate your unique contributions to the ecosystem
 9. community vouching system allowing for automated peer support and acknowledgment of your challenges
 10. milestone celebrations recognizing your continued growth and transparency with special system notes at key intervals
+11. opentelemetry integration providing distributed tracing and custom wholesome metrics for deep observability
+12. resiliency patterns including gobreaker circuit breakers and token bucket rate limiting for industrial strength stability
+13. deep health check endpoint for comprehensive system readiness and dependency verification
 
 ## howto
+...
+### seeking a deep health check
+```bash
+curl http://localhost:8000/health/deep
+```
+#### response
+```json
+{
+  "overall": true,
+  "status": {
+    "database": "healthy",
+    "pkgsite": "healthy"
+  }
+}
+```
+
+### viewing metrics
+```bash
+curl http://localhost:8000/metrics
+```
 
 ### prerequisites
 - go 1.26+
