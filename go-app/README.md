@@ -2,7 +2,7 @@
 
 a go microservice for incident reporting 
 
-## the thirteen core beliefs of `ledger-grievance`
+## the fifteen core beliefs of `ledger-grievance`
 1. standard go layout `cmd/` and `internal/` enforces clear separation of concerns
 2. always structured logging via `log/slog`, graceful shutdown for clean terminations, and programmatic database migrations
 3. openapi (via `swagger`) documentation to ensure the api is easily consumable
@@ -16,6 +16,8 @@ a go microservice for incident reporting
 11. opentelemetry integration providing distributed tracing and custom wholesome metrics for deep observability
 12. resiliency patterns including gobreaker circuit breakers and token bucket rate limiting for industrial strength stability
 13. deep health check endpoint for comprehensive system readiness and dependency verification
+14. advanced makefile overhaul including linting benchmarking security scanning and runtime profiling for operational excellence
+15. production ready kubernetes manifests featuring horizontal pod autoscaling to ensure kindness always scales with demand
 
 ## howto
 ### prerequisites

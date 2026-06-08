@@ -1,0 +1,107 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: grievance-ledger
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ledger-config
+  namespace: grievance-ledger
+data:
+  DB_HOST: "mariadb-service"
+  DB_PORT: "3306"
+  DB_NAME: "grievance_ledger"
+  PORT: "8000"
+  LOG_LEVEL: "info"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ledger-secrets
+  namespace: grievance-ledger
+type: Opaque
+data:
+  # echo -n "ledger" | base64
+  DB_USER: bGVkZ2Vy
+  # echo -n "ledgerpass" | base64
+  DB_PASSWORD: bGVkZ2VycGFzcw==
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ledger-api
+  namespace: grievance-ledger
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ledger-api
+  template:
+    metadata:
+      labels:
+        app: ledger-api
+    spec:
+      containers:
+      - name: ledger-api
+        image: jordan-lenchitz/ledger-grievance-api:latest
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: ledger-config
+        - secretRef:
+            name: ledger-secrets
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /health/deep
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ledger-service
+  namespace: grievance-ledger
+spec:
+  selector:
+    app: ledger-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ledger-hpa
+  namespace: grievance-ledger
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ledger-api
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70

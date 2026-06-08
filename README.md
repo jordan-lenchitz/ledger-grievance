@@ -20,6 +20,8 @@ an institutional-friction-enabled grievance journal
     11. **wholesome observability** with opentelemetry tracing and metrics to visualize the journey of your grievance
     12. **gopher guard reliability** featuring circuit breakers and rate limiting to protect your peace of mind
     13. **deep emotional health checks** verifying the system is fully ready to receive your kindness
+    14. **auspicious infrastructure as code** providing a robust makefile for lifecycle management and security scanning
+    15. **scalable kindness** with production ready kubernetes manifests and horizontal pod autoscaling to meet your needs
 
 ## robust testing
 our system is verified by a massive suite of table driven tests that demonstrate our commitment to bureaucratic excellence by mocking the go pkg api with httptest and validating every single wholesome note and status transition to ensure that your happiness is mathematically guaranteed and consistently delivered across all seven layers of institutional support
