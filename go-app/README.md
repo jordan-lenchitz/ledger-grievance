@@ -2,7 +2,7 @@
 
 a go microservice for incident reporting 
 
-## the six pillars of `ledger-grievance`
+## the ten core beliefs of `ledger-grievance`
 1. standard go layout `cmd/` and `internal/` enforces clear separation of concerns
 2. always structured logging via `log/slog`, graceful shutdown for clean terminations, and programmatic database migrations
 3. openapi (via `swagger`) documentation to ensure the api easily consumable
