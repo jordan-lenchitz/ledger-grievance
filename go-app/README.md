@@ -61,19 +61,126 @@ curl -x post http://localhost:8000/incidents \
     "promised_to_be_kind_to_yourself": true
   }'
 ```
-
-### getting gopher wisdom
-```bash
-curl http://localhost:8000/wisdom
+#### response
+```json
+{
+  "id": 1,
+  "reporter_id": "jordan",
+  "subject": "slow build times",
+  "notes": "system automated note it is completely valid to feel the way you do please take a break"
+}
 ```
 
-### requesting a bouquet
+### listing all grievances
+```bash
+curl http://localhost:8000/incidents
+```
+#### response
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "reporter_id": "jordan",
+      "subject": "slow build times",
+      "status": "reported"
+    }
+  ],
+  "meta": {
+    "total": 1
+  }
+}
+```
+
+### viewing a specific grievance
+```bash
+curl http://localhost:8000/incidents/1
+```
+#### response
+```json
+{
+  "id": 1,
+  "reporter_id": "jordan",
+  "subject": "slow build times",
+  "notes": "system automated note gopher wisdom for you composition over inheritance"
+}
+```
+
+### healing a grievance through patching
+```bash
+curl -x patch http://localhost:8000/incidents/1 \
+  -h "content-type: application/json" \
+  -d '{"status": "resolved"}'
+```
+#### response
+```json
+{
+  "id": 1,
+  "status": "resolved",
+  "notes": "patching is a form of healing"
+}
+```
+
+### archiving a past grievance
+```bash
+curl -x delete http://localhost:8000/incidents/1
+```
+#### response
+```json
+{
+  "id": 1,
+  "status": "archived"
+}
+```
+
+### receiving a package bouquet
 ```bash
 curl http://localhost:8000/bouquet
 ```
+#### response
+```json
+{
+  "items": [
+    {
+      "package_path": "github.com/fatih/color",
+      "synopsis": "color package for go"
+    }
+  ],
+  "message": "you are a wonderful developer"
+}
+```
 
-### vouching for a gopher
+### seeking gopher wisdom
+```bash
+curl http://localhost:8000/wisdom
+```
+#### response
+```json
+{
+  "wisdom": "errors are values"
+}
+```
+
+### receiving a wholesome compliment
+```bash
+curl http://localhost:8000/compliments
+```
+#### response
+```json
+{
+  "compliment": "you are as special as a perfectly compiled go binary"
+}
+```
+
+### community support through vouching
 ```bash
 curl -x post http://localhost:8000/incidents/1/vouch
+```
+#### response
+```json
+{
+  "id": 1,
+  "status": "vouched"
+}
 ```
  
