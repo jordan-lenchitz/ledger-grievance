@@ -13,11 +13,12 @@ a go microservice for incident reporting
 8. advanced bouquet generation returning structured package data to celebrate your unique contributions to the ecosystem
 9. community vouching system allowing for automated peer support and acknowledgment of your challenges
 10. milestone celebrations recognizing your continued growth and transparency with special system notes at key intervals
-11. opentelemetry integration providing distributed tracing and custom wholesome metrics for deep observability
+11. opentelemetry integration providing distributed tracing and custom wholesome metrics for deep observability, exposed via prometheus and grafana
 12. resiliency patterns including gobreaker circuit breakers and token bucket rate limiting for industrial strength stability
 13. deep health check endpoint for comprehensive system readiness and dependency verification
 14. advanced makefile overhaul including linting benchmarking security scanning and runtime profiling for operational excellence
 15. production ready kubernetes manifests featuring horizontal pod autoscaling to ensure kindness always scales with demand
+16. rock solid fuzz testing and testcontainers driven integration tests
 
 ## howto
 ### prerequisites
