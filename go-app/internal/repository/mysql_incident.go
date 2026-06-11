@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"strings"
 	"github.com/jordan-lenchitz/ledger-grievance/go-app/internal/domain"
+	"strings"
 )
 
 type mysqlIncidentRepository struct {

@@ -1,11 +1,12 @@
 package handler
+
 import (
 	"database/sql"
-	"net/http"
-	"strconv"
 	"github.com/gin-gonic/gin"
 	"github.com/jordan-lenchitz/ledger-grievance/go-app/internal/domain"
 	"github.com/jordan-lenchitz/ledger-grievance/go-app/internal/service"
+	"net/http"
+	"strconv"
 )
 
 type IncidentHandler struct {
@@ -229,7 +230,7 @@ func (h *IncidentHandler) VouchIncident(c *gin.Context) {
 
 func (h *IncidentHandler) GetDeepHealth(c *gin.Context) {
 	status := h.svc.CheckHealth(c.Request.Context())
-	
+
 	isHealthy := true
 	for _, v := range status {
 		if v != "healthy" {

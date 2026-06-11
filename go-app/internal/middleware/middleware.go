@@ -1,12 +1,12 @@
 package middleware
 
 import (
-	"log/slog"
-	"net/http"
-	"time"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"golang.org/x/time/rate"
+	"log/slog"
+	"net/http"
+	"time"
 )
 
 func CompassionateRateLimiter(r rate.Limit, b int) gin.HandlerFunc {

@@ -13,10 +13,10 @@ import (
 func TestCompassionateRateLimiter(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
-	
+
 	// Limit to 1 request per second with a burst of 1
 	r.Use(CompassionateRateLimiter(rate.Limit(1), 1))
-	
+
 	r.GET("/test", func(c *gin.Context) {
 		c.Status(http.StatusOK)
 	})

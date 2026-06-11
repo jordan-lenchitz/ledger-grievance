@@ -1,4 +1,5 @@
 package domain
+
 import (
 	"context"
 	"time"
@@ -7,11 +8,11 @@ import (
 type Status string
 
 const (
-	StatusReported  Status = "reported"
-	StatusReviewing Status = "reviewing"
-	StatusResolved  Status = "resolved"
-	StatusDismissed Status = "dismissed"
-	StatusArchived  Status = "archived"
+	StatusReported   Status = "reported"
+	StatusReviewing  Status = "reviewing"
+	StatusResolved   Status = "resolved"
+	StatusDismissed  Status = "dismissed"
+	StatusArchived   Status = "archived"
 	StatusCelebrated Status = "celebrated"
 )
 
@@ -35,17 +36,17 @@ type Incident struct {
 // IncidentCreate represents the input for creating an incident
 // @Description Incident creation request
 type IncidentCreate struct {
-	ReporterID            string     `json:"reporter_id" binding:"required,min=1,max=128" example:"jordan"`
-	OccurredAt            *time.Time `json:"occurred_at"`
-	Subject               string     `json:"subject" binding:"required,min=1,max=255" example:"system failure"`
-	Category              string     `json:"category" binding:"min=1,max=128" example:"technical"`
-	Severity              uint8      `json:"severity" binding:"gte=1,lte=5" example:"3"`
-	Description           string     `json:"description" binding:"required,min=1" example:"the system crashed"`
-	EvidenceURI           *string    `json:"evidence_uri" example:"https://example.com/log"`
-	Notes                 *string    `json:"notes" example:"investigating"`
-	RequiresAccommodation bool       `json:"requires_accommodation" example:"false"`
-	AssumedGoodIntentions bool       `json:"assumed_good_intentions" binding:"required" example:"true"`
-	PromisedToBeKindToYourself bool    `json:"promised_to_be_kind_to_yourself" binding:"required" example:"true"`
+	ReporterID                 string     `json:"reporter_id" binding:"required,min=1,max=128" example:"jordan"`
+	OccurredAt                 *time.Time `json:"occurred_at"`
+	Subject                    string     `json:"subject" binding:"required,min=1,max=255" example:"system failure"`
+	Category                   string     `json:"category" binding:"min=1,max=128" example:"technical"`
+	Severity                   uint8      `json:"severity" binding:"gte=1,lte=5" example:"3"`
+	Description                string     `json:"description" binding:"required,min=1" example:"the system crashed"`
+	EvidenceURI                *string    `json:"evidence_uri" example:"https://example.com/log"`
+	Notes                      *string    `json:"notes" example:"investigating"`
+	RequiresAccommodation      bool       `json:"requires_accommodation" example:"false"`
+	AssumedGoodIntentions      bool       `json:"assumed_good_intentions" binding:"required" example:"true"`
+	PromisedToBeKindToYourself bool       `json:"promised_to_be_kind_to_yourself" binding:"required" example:"true"`
 }
 
 type IncidentPatch struct {

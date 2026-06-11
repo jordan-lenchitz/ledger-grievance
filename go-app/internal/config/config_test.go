@@ -19,7 +19,7 @@ func TestLoad(t *testing.T) {
 	os.Setenv("DB_HOST", "db.example.com")
 	os.Setenv("DB_USER", "admin")
 	os.Setenv("PORT", "9000")
-	
+
 	cfg = Load()
 	assert.Equal(t, "db.example.com", cfg.DBHost)
 	assert.Equal(t, "admin", cfg.DBUser)

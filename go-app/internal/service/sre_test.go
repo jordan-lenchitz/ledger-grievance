@@ -1,12 +1,15 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"testing"
 	"time"
 
+	"github.com/jordan-lenchitz/ledger-grievance/go-app/internal/domain"
 	"github.com/sony/gobreaker"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/mock/gomock"
 )
 
 func TestPkgsiteCircuitBreaker(t *testing.T) {
@@ -41,7 +44,28 @@ func TestPkgsiteCircuitBreaker(t *testing.T) {
 }
 
 func TestCheckHealth(t *testing.T) {
-	// This tests the logic of CheckHealth in incidentService
-	// Since we already test repo.List, we just need to ensure it aggregates correctly
-	// (Implementation details depend on how much we want to mock here)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := NewMockIncidentRepository(ctrl)
+	mockPkgsite := NewMockPkgsiteService(ctrl)
+	svc := NewIncidentService(mockRepo, mockPkgsite)
+
+	ctx := context.Background()
+
+	// Both healthy
+	mockRepo.EXPECT().List(gomock.Any(), domain.ListParams{Limit: 1}).Return(domain.ListResult{}, nil)
+	mockPkgsite.EXPECT().CheckHealth(gomock.Any()).Return(nil)
+
+	status := svc.CheckHealth(ctx)
+	assert.Equal(t, "healthy", status["database"])
+	assert.Equal(t, "healthy", status["pkgsite"])
+
+	// Both unhealthy
+	mockRepo.EXPECT().List(gomock.Any(), domain.ListParams{Limit: 1}).Return(domain.ListResult{}, errors.New("db down"))
+	mockPkgsite.EXPECT().CheckHealth(gomock.Any()).Return(errors.New("api down"))
+
+	status = svc.CheckHealth(ctx)
+	assert.Equal(t, "unhealthy: db down", status["database"])
+	assert.Equal(t, "unhealthy: api down", status["pkgsite"])
 }

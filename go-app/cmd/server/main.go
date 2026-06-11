@@ -14,6 +14,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/jordan-lenchitz/ledger-grievance/go-app/docs"
 	"github.com/jordan-lenchitz/ledger-grievance/go-app/internal/config"
 	"github.com/jordan-lenchitz/ledger-grievance/go-app/internal/handler"
 	"github.com/jordan-lenchitz/ledger-grievance/go-app/internal/middleware"
@@ -21,11 +22,10 @@ import (
 	"github.com/jordan-lenchitz/ledger-grievance/go-app/internal/service"
 	"github.com/jordan-lenchitz/ledger-grievance/go-app/internal/telemetry"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
-	"golang.org/x/time/rate"
 	"github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
-	_ "github.com/jordan-lenchitz/ledger-grievance/go-app/docs"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
+	"golang.org/x/time/rate"
 )
 
 // @title Ledger-Grievance API

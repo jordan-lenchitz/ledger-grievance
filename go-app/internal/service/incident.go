@@ -1,14 +1,15 @@
 package service
+
 import (
 	"context"
 	"errors"
 	"fmt"
-	"math/rand"
-	"strings"
-	"time"
 	"github.com/jordan-lenchitz/ledger-grievance/go-app/internal/domain"
 	"github.com/jordan-lenchitz/ledger-grievance/go-app/internal/telemetry"
 	"go.opentelemetry.io/otel/metric"
+	"math/rand"
+	"strings"
+	"time"
 )
 
 var (
@@ -240,7 +241,6 @@ func (s *incidentService) applyGoSupport(ctx context.Context, req domain.Inciden
 	inc.Notes = &notes
 }
 
-
 func (s *incidentService) GetIncident(ctx context.Context, id uint64) (*domain.Incident, error) {
 	return s.repo.GetByID(ctx, id)
 }
@@ -378,7 +378,7 @@ func (s *incidentService) VouchIncident(ctx context.Context, id uint64) error {
 
 func (s *incidentService) CheckHealth(ctx context.Context) map[string]string {
 	status := make(map[string]string)
-	
+
 	// Check DB (implicitly via repo List)
 	if _, err := s.repo.List(ctx, domain.ListParams{Limit: 1}); err != nil {
 		status["database"] = "unhealthy: " + err.Error()
