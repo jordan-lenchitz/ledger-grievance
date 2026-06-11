@@ -4,8 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/jordan-lenchitz/ledger-grievance/go-app/internal/domain"
 	"strings"
+
+	"github.com/jordan-lenchitz/ledger-grievance/go-app/internal/domain"
+	"github.com/jordan-lenchitz/ledger-grievance/go-app/internal/telemetry"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 type mysqlIncidentRepository struct {
@@ -17,6 +20,10 @@ func NewMySQLIncidentRepository(db *sql.DB) domain.IncidentRepository {
 }
 
 func (r *mysqlIncidentRepository) Create(ctx context.Context, inc *domain.Incident) (uint64, error) {
+	ctx, span := telemetry.Tracer.Start(ctx, "mysqlIncidentRepository.Create")
+	defer span.End()
+	span.SetAttributes(attribute.String("reporter_id", inc.ReporterID))
+
 	res, err := r.db.ExecContext(ctx, `
 		INSERT INTO incidents 
 		(reporter_id, occurred_at, subject, category, severity, description, evidence_uri, notes, requires_accommodation)
@@ -36,6 +43,10 @@ func (r *mysqlIncidentRepository) Create(ctx context.Context, inc *domain.Incide
 }
 
 func (r *mysqlIncidentRepository) GetByID(ctx context.Context, id uint64) (*domain.Incident, error) {
+	ctx, span := telemetry.Tracer.Start(ctx, "mysqlIncidentRepository.GetByID")
+	defer span.End()
+	span.SetAttributes(attribute.Int64("incident_id", int64(id)))
+
 	var inc domain.Incident
 	err := r.db.QueryRowContext(ctx, "SELECT id, reporter_id, occurred_at, recorded_at, subject, category, severity, description, evidence_uri, requires_accommodation, status, notes FROM incidents WHERE id = ?", id).
 		Scan(&inc.ID, &inc.ReporterID, &inc.OccurredAt, &inc.RecordedAt, &inc.Subject, &inc.Category, &inc.Severity, &inc.Description, &inc.EvidenceURI, &inc.RequiresAccommodation, &inc.Status, &inc.Notes)
@@ -46,6 +57,10 @@ func (r *mysqlIncidentRepository) GetByID(ctx context.Context, id uint64) (*doma
 }
 
 func (r *mysqlIncidentRepository) List(ctx context.Context, params domain.ListParams) (domain.ListResult, error) {
+	ctx, span := telemetry.Tracer.Start(ctx, "mysqlIncidentRepository.List")
+	defer span.End()
+	span.SetAttributes(attribute.String("reporter_id", params.ReporterID))
+
 	var clauses []string
 	var args []interface{}
 
@@ -103,6 +118,10 @@ func (r *mysqlIncidentRepository) List(ctx context.Context, params domain.ListPa
 }
 
 func (r *mysqlIncidentRepository) Update(ctx context.Context, id uint64, patch domain.IncidentPatch) error {
+	ctx, span := telemetry.Tracer.Start(ctx, "mysqlIncidentRepository.Update")
+	defer span.End()
+	span.SetAttributes(attribute.Int64("incident_id", int64(id)))
+
 	var assignments []string
 	var args []interface{}
 
@@ -151,6 +170,10 @@ func (r *mysqlIncidentRepository) Update(ctx context.Context, id uint64, patch d
 }
 
 func (r *mysqlIncidentRepository) Archive(ctx context.Context, id uint64) error {
+	ctx, span := telemetry.Tracer.Start(ctx, "mysqlIncidentRepository.Archive")
+	defer span.End()
+	span.SetAttributes(attribute.Int64("incident_id", int64(id)))
+
 	res, err := r.db.ExecContext(ctx, "UPDATE incidents SET status = 'archived' WHERE id = ?", id)
 	if err != nil {
 		return err

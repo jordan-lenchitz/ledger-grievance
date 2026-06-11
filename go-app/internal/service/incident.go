@@ -4,12 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/jordan-lenchitz/ledger-grievance/go-app/internal/domain"
-	"github.com/jordan-lenchitz/ledger-grievance/go-app/internal/telemetry"
-	"go.opentelemetry.io/otel/metric"
 	"math/rand"
 	"strings"
 	"time"
+
+	"github.com/jordan-lenchitz/ledger-grievance/go-app/internal/domain"
+	"github.com/jordan-lenchitz/ledger-grievance/go-app/internal/telemetry"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
 )
 
 var (
@@ -65,6 +67,10 @@ func NewIncidentService(repo domain.IncidentRepository, pkgsite PkgsiteService) 
 }
 
 func (s *incidentService) CreateIncident(ctx context.Context, req domain.IncidentCreate) (*domain.Incident, error) {
+	ctx, span := telemetry.Tracer.Start(ctx, "incidentService.CreateIncident")
+	defer span.End()
+	span.SetAttributes(attribute.String("reporter_id", req.ReporterID))
+
 	if !req.AssumedGoodIntentions {
 		return nil, ErrAssumeGoodIntentions
 	}
@@ -242,14 +248,26 @@ func (s *incidentService) applyGoSupport(ctx context.Context, req domain.Inciden
 }
 
 func (s *incidentService) GetIncident(ctx context.Context, id uint64) (*domain.Incident, error) {
+	ctx, span := telemetry.Tracer.Start(ctx, "incidentService.GetIncident")
+	defer span.End()
+	span.SetAttributes(attribute.Int64("incident_id", int64(id)))
+
 	return s.repo.GetByID(ctx, id)
 }
 
 func (s *incidentService) ListIncidents(ctx context.Context, params domain.ListParams) (domain.ListResult, error) {
+	ctx, span := telemetry.Tracer.Start(ctx, "incidentService.ListIncidents")
+	defer span.End()
+	span.SetAttributes(attribute.String("reporter_id", params.ReporterID))
+
 	return s.repo.List(ctx, params)
 }
 
 func (s *incidentService) PatchIncident(ctx context.Context, id uint64, patch domain.IncidentPatch) (*domain.Incident, error) {
+	ctx, span := telemetry.Tracer.Start(ctx, "incidentService.PatchIncident")
+	defer span.End()
+	span.SetAttributes(attribute.Int64("incident_id", int64(id)))
+
 	err := s.repo.Update(ctx, id, patch)
 	if err != nil {
 		return nil, err
@@ -280,10 +298,17 @@ func (s *incidentService) PatchIncident(ctx context.Context, id uint64, patch do
 }
 
 func (s *incidentService) ArchiveIncident(ctx context.Context, id uint64) error {
+	ctx, span := telemetry.Tracer.Start(ctx, "incidentService.ArchiveIncident")
+	defer span.End()
+	span.SetAttributes(attribute.Int64("incident_id", int64(id)))
+
 	return s.repo.Archive(ctx, id)
 }
 
 func (s *incidentService) GetWholesomeCompliment(ctx context.Context) (string, error) {
+	ctx, span := telemetry.Tracer.Start(ctx, "incidentService.GetWholesomeCompliment")
+	defer span.End()
+
 	keywords := []string{"awesome", "magic", "fun", "hug", "kindness", "gentle", "sparkle", "rainbow", "unicorn", "love", "peace", "harmony", "zen", "stability"}
 
 	if s.pkgsite == nil {
@@ -319,6 +344,9 @@ func (s *incidentService) GetWholesomeCompliment(ctx context.Context) (string, e
 }
 
 func (s *incidentService) GetWholesomeBouquet(ctx context.Context) (*domain.WholesomeBouquet, error) {
+	ctx, span := telemetry.Tracer.Start(ctx, "incidentService.GetWholesomeBouquet")
+	defer span.End()
+
 	keywords := []string{"awesome", "magic", "fun", "hug", "kindness", "gentle", "sparkle", "rainbow", "unicorn", "love", "peace", "harmony", "zen", "stability"}
 
 	if s.pkgsite == nil {
@@ -360,6 +388,10 @@ func (s *incidentService) GetWholesomeBouquet(ctx context.Context) (*domain.Whol
 }
 
 func (s *incidentService) VouchIncident(ctx context.Context, id uint64) error {
+	ctx, span := telemetry.Tracer.Start(ctx, "incidentService.VouchIncident")
+	defer span.End()
+	span.SetAttributes(attribute.Int64("incident_id", int64(id)))
+
 	inc, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		return err

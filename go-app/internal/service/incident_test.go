@@ -403,8 +403,8 @@ func TestVouchIncident(t *testing.T) {
 	ctx := context.Background()
 	id := uint64(1)
 	notes := "original notes"
-	mockRepo.EXPECT().GetByID(ctx, id).Return(&domain.Incident{ID: id, Notes: &notes}, nil)
-	mockRepo.EXPECT().Update(ctx, id, gomock.Any()).Do(func(ctx context.Context, id uint64, patch domain.IncidentPatch) {
+	mockRepo.EXPECT().GetByID(gomock.Any(), id).Return(&domain.Incident{ID: id, Notes: &notes}, nil)
+	mockRepo.EXPECT().Update(gomock.Any(), id, gomock.Any()).Do(func(ctx context.Context, id uint64, patch domain.IncidentPatch) {
 		assert.Contains(t, *patch.Notes, "fellow Gopher has vouched")
 	}).Return(nil)
 
