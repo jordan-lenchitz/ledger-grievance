@@ -1,0 +1,278 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API for the incident grievance ledger",
+        "title": "Ledger-Grievance API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8000",
+    "basePath": "/",
+    "paths": {
+        "/incidents": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "incidents"
+                ],
+                "summary": "List incidents",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Reporter ID",
+                        "name": "reporter_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Category",
+                        "name": "category",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search query",
+                        "name": "q",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.ListResult"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "incidents"
+                ],
+                "summary": "Create a new incident",
+                "parameters": [
+                    {
+                        "description": "Incident request",
+                        "name": "incident",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.IncidentCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.Incident"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "418": {
+                        "description": "I'm a teapot",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "gin.H": {
+            "type": "object",
+            "additionalProperties": {}
+        },
+        "github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.Incident": {
+            "description": "Incident model",
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string",
+                    "example": "technical"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "the system crashed"
+                },
+                "evidence_uri": {
+                    "type": "string",
+                    "example": "https://example.com/log"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "notes": {
+                    "type": "string",
+                    "example": "investigating"
+                },
+                "occurred_at": {
+                    "type": "string"
+                },
+                "recorded_at": {
+                    "type": "string"
+                },
+                "reporter_id": {
+                    "type": "string",
+                    "example": "jordan"
+                },
+                "requires_accommodation": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "severity": {
+                    "type": "integer",
+                    "example": 3
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.Status"
+                        }
+                    ],
+                    "example": "reported"
+                },
+                "subject": {
+                    "type": "string",
+                    "example": "system failure"
+                }
+            }
+        },
+        "github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.IncidentCreate": {
+            "description": "Incident creation request",
+            "type": "object",
+            "required": [
+                "assumed_good_intentions",
+                "description",
+                "reporter_id",
+                "subject"
+            ],
+            "properties": {
+                "assumed_good_intentions": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "category": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "example": "technical"
+                },
+                "description": {
+                    "type": "string",
+                    "minLength": 1,
+                    "example": "the system crashed"
+                },
+                "evidence_uri": {
+                    "type": "string",
+                    "example": "https://example.com/log"
+                },
+                "notes": {
+                    "type": "string",
+                    "example": "investigating"
+                },
+                "occurred_at": {
+                    "type": "string"
+                },
+                "reporter_id": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "example": "jordan"
+                },
+                "requires_accommodation": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "severity": {
+                    "type": "integer",
+                    "maximum": 5,
+                    "minimum": 1,
+                    "example": 3
+                },
+                "subject": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 1,
+                    "example": "system failure"
+                }
+            }
+        },
+        "github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.ListResult": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.Incident"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.Status": {
+            "type": "string",
+            "enum": [
+                "reported",
+                "reviewing",
+                "resolved",
+                "dismissed",
+                "archived"
+            ],
+            "x-enum-varnames": [
+                "StatusReported",
+                "StatusReviewing",
+                "StatusResolved",
+                "StatusDismissed",
+                "StatusArchived"
+            ]
+        }
+    }
+}
