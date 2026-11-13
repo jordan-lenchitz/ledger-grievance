@@ -3,12 +3,16 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/golang-migrate/migrate/v4"
+	mysqlmigrate "github.com/golang-migrate/migrate/v4/database/mysql"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jordan-lenchitz/ledger-grievance/go-app/internal/domain"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -22,7 +26,7 @@ func TestMySQLIncidentRepository_Integration(t *testing.T) {
 
 	ctx := context.Background()
 
-	dbScriptPath, err := filepath.Abs("../../../db/init.sql")
+	migrationsDir, err := filepath.Abs("../../migrations")
 	require.NoError(t, err)
 
 	mariadbContainer, err := mariadb.Run(ctx,
@@ -30,7 +34,6 @@ func TestMySQLIncidentRepository_Integration(t *testing.T) {
 		mariadb.WithDatabase("grievance_ledger"),
 		mariadb.WithUsername("ledger"),
 		mariadb.WithPassword("ledgerpass"),
-		mariadb.WithScripts(dbScriptPath),
 	)
 	require.NoError(t, err)
 
@@ -44,14 +47,23 @@ func TestMySQLIncidentRepository_Integration(t *testing.T) {
 	require.NoError(t, err)
 
 	if !strings.Contains(connStr, "?") {
-		connStr += "?parseTime=true"
+		connStr += "?parseTime=true&multiStatements=true"
 	} else {
-		connStr += "&parseTime=true"
+		connStr += "&parseTime=true&multiStatements=true"
 	}
 
 	db, err := sql.Open("mysql", connStr)
 	require.NoError(t, err)
-	defer db.Close()
+	defer func() { _ = db.Close() }()
+
+	driver, err := mysqlmigrate.WithInstance(db, &mysqlmigrate.Config{})
+	require.NoError(t, err)
+
+	m, err := migrate.NewWithDatabaseInstance("file://"+migrationsDir, "mysql", driver)
+	require.NoError(t, err)
+	if err := m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+		require.NoError(t, err)
+	}
 
 	repo := NewMySQLIncidentRepository(db)
 

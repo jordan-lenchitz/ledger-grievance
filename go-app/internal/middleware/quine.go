@@ -89,7 +89,9 @@ func QuineNarrator() gin.HandlerFunc {
 		var jsonObj map[string]any
 
 		if err := json.Unmarshal(bodyBytes, &jsonObj); err == nil {
-			jsonObj["essence"] = getSourceCode()
+			if c.Query("verbose_essence") == "true" || strings.EqualFold(c.GetHeader("X-Verbose-Essence"), "true") {
+				jsonObj["essence"] = getSourceCode()
+			}
 			jsonObj["narrative"] = narratives[rand.Intn(len(narratives))]
 
 			if newBody, err := json.Marshal(jsonObj); err == nil {

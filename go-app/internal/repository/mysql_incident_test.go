@@ -16,7 +16,7 @@ func TestMySQLIncidentRepository_GetByID(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to open mock db: %s", err)
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	repo := NewMySQLIncidentRepository(db)
 
@@ -42,7 +42,7 @@ func TestMySQLIncidentRepository_Archive(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to open mock db: %s", err)
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	repo := NewMySQLIncidentRepository(db)
 

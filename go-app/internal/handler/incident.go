@@ -56,9 +56,9 @@ func respondWithError(c *gin.Context, err error) {
 // @Produce json
 // @Param incident body domain.IncidentCreate true "Incident request"
 // @Success 201 {object} domain.Incident
-// @Failure 400 {object} gin.H
-// @Failure 418 {object} gin.H
-// @Failure 500 {object} gin.H
+// @Failure 400 {object} map[string]any
+// @Failure 418 {object} map[string]any
+// @Failure 500 {object} map[string]any
 // @Router /incidents [post]
 func (h *IncidentHandler) CreateIncident(c *gin.Context) {
 	var payload domain.IncidentCreate
@@ -95,7 +95,7 @@ func (h *IncidentHandler) CreateIncident(c *gin.Context) {
 // @Param limit query int false "Limit"
 // @Param offset query int false "Offset"
 // @Success 200 {object} domain.ListResult
-// @Failure 500 {object} gin.H
+// @Failure 500 {object} map[string]any
 // @Router /incidents [get]
 func (h *IncidentHandler) ListIncidents(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))

@@ -1,9 +1,6 @@
 basePath: /
 definitions:
-  gin.H:
-    additionalProperties: {}
-    type: object
-  github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.Incident:
+  domain.Incident:
     description: Incident model
     properties:
       category:
@@ -23,6 +20,9 @@ definitions:
         type: string
       occurred_at:
         type: string
+      original_hash:
+        example: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+        type: string
       recorded_at:
         type: string
       reporter_id:
@@ -36,13 +36,16 @@ definitions:
         type: integer
       status:
         allOf:
-        - $ref: '#/definitions/github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.Status'
+        - $ref: '#/definitions/domain.Status'
         example: reported
       subject:
         example: system failure
         type: string
+      was_forgotten:
+        example: false
+        type: boolean
     type: object
-  github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.IncidentCreate:
+  domain.IncidentCreate:
     description: Incident creation request
     properties:
       assumed_good_intentions:
@@ -65,6 +68,9 @@ definitions:
         type: string
       occurred_at:
         type: string
+      promised_to_be_kind_to_yourself:
+        example: true
+        type: boolean
       reporter_id:
         example: jordan
         maxLength: 128
@@ -86,25 +92,27 @@ definitions:
     required:
     - assumed_good_intentions
     - description
+    - promised_to_be_kind_to_yourself
     - reporter_id
     - subject
     type: object
-  github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.ListResult:
+  domain.ListResult:
     properties:
       data:
         items:
-          $ref: '#/definitions/github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.Incident'
+          $ref: '#/definitions/domain.Incident'
         type: array
       total:
         type: integer
     type: object
-  github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.Status:
+  domain.Status:
     enum:
     - reported
     - reviewing
     - resolved
     - dismissed
     - archived
+    - celebrated
     type: string
     x-enum-varnames:
     - StatusReported
@@ -112,6 +120,7 @@ definitions:
     - StatusResolved
     - StatusDismissed
     - StatusArchived
+    - StatusCelebrated
 host: localhost:8000
 info:
   contact: {}
@@ -152,11 +161,12 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.ListResult'
+            $ref: '#/definitions/domain.ListResult'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/gin.H'
+            additionalProperties: true
+            type: object
       summary: List incidents
       tags:
       - incidents
@@ -169,26 +179,29 @@ paths:
         name: incident
         required: true
         schema:
-          $ref: '#/definitions/github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.IncidentCreate'
+          $ref: '#/definitions/domain.IncidentCreate'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.Incident'
+            $ref: '#/definitions/domain.Incident'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/gin.H'
+            additionalProperties: true
+            type: object
         "418":
           description: I'm a teapot
           schema:
-            $ref: '#/definitions/gin.H'
+            additionalProperties: true
+            type: object
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/gin.H'
+            additionalProperties: true
+            type: object
       summary: Create a new incident
       tags:
       - incidents

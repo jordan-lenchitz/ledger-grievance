@@ -59,7 +59,7 @@ func TestPkgsiteService_GetPackage(t *testing.T) {
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(tt.status)
 				if tt.serverResponse != nil {
-					json.NewEncoder(w).Encode(tt.serverResponse)
+					_ = json.NewEncoder(w).Encode(tt.serverResponse)
 				}
 			}))
 			defer server.Close()
@@ -88,7 +88,7 @@ func TestPkgsiteService_Search(t *testing.T) {
 			},
 			Total: 1,
 		}
-		json.NewEncoder(w).Encode(resp)
+		_ = json.NewEncoder(w).Encode(resp)
 	}))
 	defer server.Close()
 

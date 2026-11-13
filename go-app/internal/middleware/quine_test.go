@@ -76,7 +76,7 @@ func TestQuineNarrator_TableOfUltimateTruth(t *testing.T) {
 				}
 			})
 
-			req, _ := http.NewRequest(http.MethodGet, "/meditate", nil)
+			req, _ := http.NewRequest(http.MethodGet, "/meditate?verbose_essence=true", nil)
 			w := httptest.NewRecorder()
 
 			assert.NotPanics(t, func() {
@@ -250,6 +250,7 @@ func TestQuineNarrator_Karuna(t *testing.T) {
 	})
 
 	req, _ := http.NewRequest(http.MethodGet, "/karuna", nil)
+	req.Header.Set("X-Verbose-Essence", "true")
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 
@@ -260,4 +261,24 @@ func TestQuineNarrator_Karuna(t *testing.T) {
 
 	_, hasEssence := resp["essence"]
 	assert.True(t, hasEssence, "compassion means offering essence even when the system is suffering")
+}
+
+func TestQuineNarrator_DefaultOmitsEssence(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+	r.Use(QuineNarrator())
+	r.GET("/quiet", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"ok": true})
+	})
+
+	req, _ := http.NewRequest(http.MethodGet, "/quiet", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	var resp map[string]any
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
+	_, hasEssence := resp["essence"]
+	assert.False(t, hasEssence, "essence should be omitted unless verbose_essence=true or X-Verbose-Essence: true")
+	assert.Contains(t, resp, "narrative")
 }

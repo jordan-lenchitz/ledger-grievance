@@ -101,7 +101,7 @@ func (r *mysqlIncidentRepository) List(ctx context.Context, params domain.ListPa
 	if err != nil {
 		return domain.ListResult{}, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	incidents := []domain.Incident{}
 	for rows.Next() {

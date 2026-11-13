@@ -66,13 +66,14 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.ListResult"
+                            "$ref": "#/definitions/domain.ListResult"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/gin.H"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 }
@@ -95,7 +96,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.IncidentCreate"
+                            "$ref": "#/definitions/domain.IncidentCreate"
                         }
                     }
                 ],
@@ -103,25 +104,28 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.Incident"
+                            "$ref": "#/definitions/domain.Incident"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/gin.H"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "418": {
                         "description": "I'm a teapot",
                         "schema": {
-                            "$ref": "#/definitions/gin.H"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/gin.H"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 }
@@ -129,11 +133,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "gin.H": {
-            "type": "object",
-            "additionalProperties": {}
-        },
-        "github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.Incident": {
+        "domain.Incident": {
             "description": "Incident model",
             "type": "object",
             "properties": {
@@ -160,6 +160,10 @@ const docTemplate = `{
                 "occurred_at": {
                     "type": "string"
                 },
+                "original_hash": {
+                    "type": "string",
+                    "example": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
                 "recorded_at": {
                     "type": "string"
                 },
@@ -178,7 +182,7 @@ const docTemplate = `{
                 "status": {
                     "allOf": [
                         {
-                            "$ref": "#/definitions/github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.Status"
+                            "$ref": "#/definitions/domain.Status"
                         }
                     ],
                     "example": "reported"
@@ -186,15 +190,20 @@ const docTemplate = `{
                 "subject": {
                     "type": "string",
                     "example": "system failure"
+                },
+                "was_forgotten": {
+                    "type": "boolean",
+                    "example": false
                 }
             }
         },
-        "github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.IncidentCreate": {
+        "domain.IncidentCreate": {
             "description": "Incident creation request",
             "type": "object",
             "required": [
                 "assumed_good_intentions",
                 "description",
+                "promised_to_be_kind_to_yourself",
                 "reporter_id",
                 "subject"
             ],
@@ -225,6 +234,10 @@ const docTemplate = `{
                 "occurred_at": {
                     "type": "string"
                 },
+                "promised_to_be_kind_to_yourself": {
+                    "type": "boolean",
+                    "example": true
+                },
                 "reporter_id": {
                     "type": "string",
                     "maxLength": 128,
@@ -249,13 +262,13 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.ListResult": {
+        "domain.ListResult": {
             "type": "object",
             "properties": {
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.Incident"
+                        "$ref": "#/definitions/domain.Incident"
                     }
                 },
                 "total": {
@@ -263,21 +276,23 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_jordan-lenchitz_ledger-grievance_go-app_internal_domain.Status": {
+        "domain.Status": {
             "type": "string",
             "enum": [
                 "reported",
                 "reviewing",
                 "resolved",
                 "dismissed",
-                "archived"
+                "archived",
+                "celebrated"
             ],
             "x-enum-varnames": [
                 "StatusReported",
                 "StatusReviewing",
                 "StatusResolved",
                 "StatusDismissed",
-                "StatusArchived"
+                "StatusArchived",
+                "StatusCelebrated"
             ]
         }
     }

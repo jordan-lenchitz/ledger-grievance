@@ -109,7 +109,7 @@ func TestSLAGuarantee_WithQuineNarrator(t *testing.T) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "boom"})
 	})
 
-	req := httptest.NewRequest(http.MethodGet, "/fail", nil)
+	req := httptest.NewRequest(http.MethodGet, "/fail?verbose_essence=true", nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 

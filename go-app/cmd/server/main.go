@@ -64,7 +64,7 @@ func main() {
 		logger.Error("could not connect to database", "error", err)
 		os.Exit(1)
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	repo := repository.NewMySQLIncidentRepository(db)
 	pkgsiteSvc := service.NewPkgsiteService("")
