@@ -1,0 +1,3 @@
+ALTER TABLE incidents
+  ADD COLUMN was_forgotten BOOLEAN NOT NULL DEFAULT FALSE,
+  ADD COLUMN original_hash CHAR(64) NULL;

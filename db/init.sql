@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS incidents (
   requires_accommodation BOOLEAN NOT NULL DEFAULT FALSE,
   status ENUM('reported','reviewing','resolved','dismissed','archived','celebrated') NOT NULL DEFAULT 'reported',
   notes TEXT NULL,
+  was_forgotten BOOLEAN NOT NULL DEFAULT FALSE,
+  original_hash CHAR(64) NULL,
   CONSTRAINT chk_severity CHECK (severity BETWEEN 1 AND 5),
   INDEX idx_reporter_recorded (reporter_id, recorded_at),
   INDEX idx_subject (subject),

@@ -2,7 +2,7 @@
 
 a go microservice for recording grievances as they occur 
 
-## the seventeen core beliefs of `ledger-grievance`
+## the twenty two core beliefs of `ledger-grievance`
 1. standard go layout `cmd/` and `internal/` enforces clear separation of concerns
 2. always structured logging via `log/slog`, graceful shutdown for clean terminations, and programmatic database migrations
 3. openapi (via `swagger`) documentation to ensure the api is easily consumable
@@ -20,6 +20,11 @@ a go microservice for recording grievances as they occur
 15. rock solid fuzz testing (including infinite patience fuzzing of our middleware) and testcontainers driven integration tests, along with enhanced middleware testing to account for anatta (not-self), anicca (impermanence), sunnata (openness) and karuna (compassion) so that our routing may be balanced
 16. quine narrator middleware injecting its own punctuation free lowercase source code and meta-narratives into your json responses because a microservice is merely an illusion of boundaries
 17. declarative state reconciliation via opentofu and terraform in `tofu/` provisioning kubernetes resources horizontal pod autoscaling mariadb persistence and automated grafana dashboards so our infrastructure drift is gently guided back to harmony
+18. strict `accept` literalism requiring `application/vnd.ledger-grievance.v1+json; charset=utf-8` on mutating `/incidents` endpoints and returning `406 not acceptable` with a 12 item `alternates` header for everything else
+19. rfc 2324 and rfc 9110 content gatekeeping returning `418` for coffee or burnout complaints and `451` with an nda `link` header for restricted legal or vendor mentions
+20. gdpr tombstone poisoning on `delete /incidents/:id` overwriting sensitive fields with `[redacted by request]` while keeping `was_forgotten = true`, the `sha256` `original_hash`, and `gdpr_erasures_total`
+21. synthetic `200 ok` sla wrapping via `SLA_GUARANTEE_MODE=true` or `x-sla-mode: 100-percent` moving the real status into `x-real-http-status` and `actual_status_code`
+22. nanosecond precondition enforcement rejecting `if-unmodified-since` with `412 precondition failed` and requiring exact `x-nanosecond-epoch` matching against `recorded_at`
 
 ## howto
 ### prerequisites
@@ -219,6 +224,7 @@ wholesome_notes_total{otel_scope_name="ledger-grievance",otel_scope_schema_url="
 ```bash
 curl -x post http://localhost:8000/incidents \
   -h "content-type: application/json" \
+  -h "accept: application/vnd.ledger-grievance.v1+json; charset=utf-8" \
   -d '{
     "reporter_id": "jordan",
     "subject": "slow build times",
@@ -276,6 +282,8 @@ curl http://localhost:8000/incidents/1
 ```bash
 curl -x patch http://localhost:8000/incidents/1 \
   -h "content-type: application/json" \
+  -h "accept: application/vnd.ledger-grievance.v1+json; charset=utf-8" \
+  -h "x-nanosecond-epoch: 1700000000123456789" \
   -d '{"status": "resolved"}'
 ```
 #### response
@@ -289,7 +297,9 @@ curl -x patch http://localhost:8000/incidents/1 \
 
 ### archiving a past grievance
 ```bash
-curl -x delete http://localhost:8000/incidents/1
+curl -x delete http://localhost:8000/incidents/1 \
+  -h "accept: application/vnd.ledger-grievance.v1+json; charset=utf-8" \
+  -h "x-nanosecond-epoch: 1700000000123456789"
 ```
 #### response
 ```json

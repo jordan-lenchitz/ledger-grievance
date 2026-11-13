@@ -81,5 +81,21 @@ func TestMySQLIncidentRepository_Integration(t *testing.T) {
 		assert.Equal(t, inc.Category, fetched.Category)
 		assert.Equal(t, inc.Severity, fetched.Severity)
 		assert.Equal(t, inc.Description, fetched.Description)
+		assert.False(t, fetched.WasForgotten)
+		assert.Nil(t, fetched.OriginalHash)
+
+		err = repo.Archive(ctx, id)
+		require.NoError(t, err)
+
+		forgotten, err := repo.GetByID(ctx, id)
+		require.NoError(t, err)
+		assert.Equal(t, domain.StatusArchived, forgotten.Status)
+		assert.Equal(t, "[REDACTED BY REQUEST]", forgotten.Subject)
+		assert.Equal(t, "[REDACTED BY REQUEST]", forgotten.Description)
+		assert.Nil(t, forgotten.EvidenceURI)
+		assert.Nil(t, forgotten.Notes)
+		assert.True(t, forgotten.WasForgotten)
+		require.NotNil(t, forgotten.OriginalHash)
+		assert.Len(t, *forgotten.OriginalHash, 64)
 	})
 }

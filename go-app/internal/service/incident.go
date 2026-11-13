@@ -17,6 +17,7 @@ import (
 var (
 	wholesomeNotesCounter metric.Int64Counter
 	gopherWisdomCounter   metric.Int64Counter
+	gdprErasuresCounter   metric.Int64Counter
 )
 
 func init() {
@@ -25,6 +26,9 @@ func init() {
 	)
 	gopherWisdomCounter, _ = telemetry.Meter.Int64Counter("gopher_wisdom_total",
 		metric.WithDescription("Total number of gopher wisdom tips shared"),
+	)
+	gdprErasuresCounter, _ = telemetry.Meter.Int64Counter("gdpr_erasures_total",
+		metric.WithDescription("Total number of GDPR right-to-be-forgotten tombstone erasures"),
 	)
 }
 
@@ -287,7 +291,11 @@ func (s *incidentService) ArchiveIncident(ctx context.Context, id uint64) error 
 	defer span.End()
 	span.SetAttributes(attribute.Int64("incident_id", int64(id)))
 
-	return s.repo.Archive(ctx, id)
+	if err := s.repo.Archive(ctx, id); err != nil {
+		return err
+	}
+	gdprErasuresCounter.Add(ctx, 1)
+	return nil
 }
 
 func (s *incidentService) sampleBouquetItems(ctx context.Context) []domain.BouquetItem {

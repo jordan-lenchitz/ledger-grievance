@@ -30,6 +30,8 @@ type Incident struct {
 	RequiresAccommodation bool       `json:"requires_accommodation" example:"false"`
 	Status                Status     `json:"status" example:"reported"`
 	Notes                 *string    `json:"notes" example:"investigating"`
+	WasForgotten          bool       `json:"was_forgotten" example:"false"`
+	OriginalHash          *string    `json:"original_hash,omitempty" example:"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"`
 }
 
 // @Description Incident creation request

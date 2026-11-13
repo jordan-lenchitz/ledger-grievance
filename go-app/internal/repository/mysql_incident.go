@@ -2,7 +2,9 @@ package repository
 
 import (
 	"context"
+	"crypto/sha256"
 	"database/sql"
+	"encoding/hex"
 	"fmt"
 	"strings"
 
@@ -48,8 +50,8 @@ func (r *mysqlIncidentRepository) GetByID(ctx context.Context, id uint64) (*doma
 	span.SetAttributes(attribute.Int64("incident_id", int64(id)))
 
 	var inc domain.Incident
-	err := r.db.QueryRowContext(ctx, "SELECT id, reporter_id, occurred_at, recorded_at, subject, category, severity, description, evidence_uri, requires_accommodation, status, notes FROM incidents WHERE id = ?", id).
-		Scan(&inc.ID, &inc.ReporterID, &inc.OccurredAt, &inc.RecordedAt, &inc.Subject, &inc.Category, &inc.Severity, &inc.Description, &inc.EvidenceURI, &inc.RequiresAccommodation, &inc.Status, &inc.Notes)
+	err := r.db.QueryRowContext(ctx, "SELECT id, reporter_id, occurred_at, recorded_at, subject, category, severity, description, evidence_uri, requires_accommodation, status, notes, was_forgotten, original_hash FROM incidents WHERE id = ?", id).
+		Scan(&inc.ID, &inc.ReporterID, &inc.OccurredAt, &inc.RecordedAt, &inc.Subject, &inc.Category, &inc.Severity, &inc.Description, &inc.EvidenceURI, &inc.RequiresAccommodation, &inc.Status, &inc.Notes, &inc.WasForgotten, &inc.OriginalHash)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +96,7 @@ func (r *mysqlIncidentRepository) List(ctx context.Context, params domain.ListPa
 		return domain.ListResult{}, err
 	}
 
-	query := fmt.Sprintf("SELECT id, reporter_id, occurred_at, recorded_at, subject, category, severity, description, evidence_uri, requires_accommodation, status, notes FROM incidents %s ORDER BY recorded_at DESC, id DESC LIMIT ? OFFSET ?", where)
+	query := fmt.Sprintf("SELECT id, reporter_id, occurred_at, recorded_at, subject, category, severity, description, evidence_uri, requires_accommodation, status, notes, was_forgotten, original_hash FROM incidents %s ORDER BY recorded_at DESC, id DESC LIMIT ? OFFSET ?", where)
 	rows, err := r.db.QueryContext(ctx, query, append(args, params.Limit, params.Offset)...)
 	if err != nil {
 		return domain.ListResult{}, err
@@ -104,7 +106,7 @@ func (r *mysqlIncidentRepository) List(ctx context.Context, params domain.ListPa
 	incidents := []domain.Incident{}
 	for rows.Next() {
 		var inc domain.Incident
-		err := rows.Scan(&inc.ID, &inc.ReporterID, &inc.OccurredAt, &inc.RecordedAt, &inc.Subject, &inc.Category, &inc.Severity, &inc.Description, &inc.EvidenceURI, &inc.RequiresAccommodation, &inc.Status, &inc.Notes)
+		err := rows.Scan(&inc.ID, &inc.ReporterID, &inc.OccurredAt, &inc.RecordedAt, &inc.Subject, &inc.Category, &inc.Severity, &inc.Description, &inc.EvidenceURI, &inc.RequiresAccommodation, &inc.Status, &inc.Notes, &inc.WasForgotten, &inc.OriginalHash)
 		if err != nil {
 			return domain.ListResult{}, err
 		}
@@ -174,7 +176,19 @@ func (r *mysqlIncidentRepository) Archive(ctx context.Context, id uint64) error 
 	defer span.End()
 	span.SetAttributes(attribute.Int64("incident_id", int64(id)))
 
-	res, err := r.db.ExecContext(ctx, "UPDATE incidents SET status = 'archived' WHERE id = ?", id)
+	var subject, description string
+	if err := r.db.QueryRowContext(ctx, "SELECT subject, description FROM incidents WHERE id = ?", id).Scan(&subject, &description); err != nil {
+		return err
+	}
+
+	sum := sha256.Sum256([]byte(subject + ":" + description))
+	originalHash := hex.EncodeToString(sum[:])
+
+	res, err := r.db.ExecContext(
+		ctx,
+		"UPDATE incidents SET status = 'archived', subject = '[REDACTED BY REQUEST]', description = '[REDACTED BY REQUEST]', evidence_uri = NULL, notes = NULL, was_forgotten = TRUE, original_hash = ? WHERE id = ?",
+		originalHash, id,
+	)
 	if err != nil {
 		return err
 	}

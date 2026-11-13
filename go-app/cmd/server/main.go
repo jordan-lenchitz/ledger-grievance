@@ -75,10 +75,22 @@ func main() {
 	r := gin.New()
 
 	r.Use(gin.Recovery())
+	r.Use(middleware.SLAGuarantee(cfg.SLAGuaranteeMode))
 	r.Use(middleware.QuineNarrator())
 	r.Use(otelgin.Middleware("ledger-grievance"))
 	r.Use(middleware.Logger(logger))
 	r.Use(middleware.ErrorHandler())
+	if cfg.StrictCompliance {
+		r.Use(middleware.StrictAccept())
+		r.Use(middleware.ContentGatekeeper())
+		r.Use(middleware.SubSecondPrecondition(func(ctx context.Context, id uint64) (time.Time, error) {
+			inc, err := svc.GetIncident(ctx, id)
+			if err != nil {
+				return time.Time{}, err
+			}
+			return inc.RecordedAt, nil
+		}))
+	}
 	r.Use(middleware.CompassionateRateLimiter(rate.Limit(5), 10))
 
 	r.GET("/health", func(c *gin.Context) {

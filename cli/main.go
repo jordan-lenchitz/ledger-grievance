@@ -11,26 +11,48 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var apiURL string
+const requiredAcceptMediaType = "application/vnd.ledger-grievance.v1+json; charset=utf-8"
 
-func request(method, path string, payload any) {
+var (
+	apiURL          string
+	nanosecondEpoch string
+	slaMode         bool
+)
+
+func buildRequest(method, path string, payload any) (*http.Request, error) {
 	var bodyReader io.Reader
 	if payload != nil {
 		data, err := json.Marshal(payload)
 		if err != nil {
-			fmt.Printf("Error: %v\n", err)
-			return
+			return nil, err
 		}
 		bodyReader = bytes.NewBuffer(data)
 	}
 
 	req, err := http.NewRequest(method, apiURL+path, bodyReader)
 	if err != nil {
+		return nil, err
+	}
+	if payload != nil || method == http.MethodPost || method == http.MethodPatch {
+		req.Header.Set("Content-Type", "application/json")
+	}
+	if method == http.MethodPost || method == http.MethodPatch || method == http.MethodDelete {
+		req.Header.Set("Accept", requiredAcceptMediaType)
+	}
+	if nanosecondEpoch != "" {
+		req.Header.Set("X-Nanosecond-Epoch", nanosecondEpoch)
+	}
+	if slaMode {
+		req.Header.Set("X-SLA-Mode", "100-percent")
+	}
+	return req, nil
+}
+
+func request(method, path string, payload any) {
+	req, err := buildRequest(method, path, payload)
+	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return
-	}
-	if payload != nil || method == http.MethodPost {
-		req.Header.Set("Content-Type", "application/json")
 	}
 
 	resp, err := http.DefaultClient.Do(req)
@@ -55,6 +77,8 @@ func main() {
 	}
 
 	rootCmd.PersistentFlags().StringVar(&apiURL, "url", "http://localhost:8000", "API Base URL")
+	rootCmd.PersistentFlags().StringVar(&nanosecondEpoch, "nanosecond-epoch", "", "X-Nanosecond-Epoch header for PATCH/DELETE")
+	rootCmd.PersistentFlags().BoolVar(&slaMode, "sla-mode", false, "Send X-SLA-Mode: 100-percent")
 
 	listCmd := &cobra.Command{
 		Use:   "list",
